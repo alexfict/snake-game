@@ -1,5 +1,5 @@
 import './style.css'
-import { type Coords, Snake, SnakeLink} from './types'
+import { type Coords, Snake, SnakeLink, Direction} from './types'
 
 // move to settings
 const linkDimensionsInPx = 5;
@@ -12,6 +12,25 @@ function main() {
     console.warn("Could not find canvas element with id 'canvas'");
     return;
   }
+
+  canvas.addEventListener("keydown", e => {
+    switch(e.key){
+      case "ArrowUp":
+        snake.setDirection(Direction.Up);
+        break;
+      case "ArrowDown":
+        snake.setDirection(Direction.Down);
+        break;
+      case "ArrowRight":
+        snake.setDirection(Direction.Right);
+        break;
+      case "ArrowLeft":
+        snake.setDirection(Direction.Left);
+        break;
+    }
+  })
+
+  canvas.focus();
   
   const ctx = canvas.getContext("2d");
 
@@ -26,9 +45,6 @@ function main() {
   }
 
   const intervalId = setInterval(() => {run(ctx, snake)}, 500);
-  setTimeout(function() {
-      clearInterval(intervalId);
-  }, 10 * 1000)
 }
 
 function run(ctx:CanvasRenderingContext2D, snake:Snake) {

@@ -103,3 +103,33 @@ export enum Direction {
   Left,
   Right,
 }
+
+export class Target {
+  position: Coords;
+  maxX: number;
+  maxY: number;
+
+  constructor(canvasDimensions: Coords, linkDimensions: Coords) {
+    this.maxX = canvasDimensions[0] / linkDimensions[0];
+    this.maxY = canvasDimensions[1] / linkDimensions[1];
+    this.position = this.getRandomPosition();
+  }
+
+  checkCollision(nodePosition: Coords) {
+    return (
+      this.position[0] === nodePosition[0] &&
+      this.position[1] === nodePosition[1]
+    );
+  }
+
+  moveTarget() {
+    this.position = this.getRandomPosition();
+  }
+
+  private getRandomPosition(): Coords {
+    return [
+      Math.floor(Math.random() * this.maxX),
+      Math.floor(Math.random() * this.maxY),
+    ];
+  }
+}

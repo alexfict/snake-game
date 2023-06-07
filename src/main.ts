@@ -1,5 +1,5 @@
 import "./style.css";
-import { type Coords, Snake, SnakeLink, Direction } from "./types";
+import { type Coords, Snake, SnakeLink, Direction, Target } from "./types";
 
 // settable by the client
 const linkDimensionsInPx: Coords = [5, 5];
@@ -54,15 +54,33 @@ function main() {
     snake.feedBack(new SnakeLink(link));
   }
 
+  const target = new Target(canvasDimensionsInPx, linkDimensionsInPx);
+  printTarget(ctx, target);
+
   const intervalId = setInterval(() => {
-    run(ctx, snake);
+    run(ctx, snake, target);
   }, 250);
 }
 
-function run(ctx: CanvasRenderingContext2D, snake: Snake) {
+function printTarget(ctx: CanvasRenderingContext2D, target: Target) {
+  ctx.fillStyle = "red";
+  ctx.fillRect(
+    target.position[0] * linkDimensionsInPx[0],
+    target.position[1] * linkDimensionsInPx[1],
+    linkDimensionsInPx[0],
+    linkDimensionsInPx[1]
+  );
+  ctx.fillStyle = "black";
+}
+
+function run(ctx: CanvasRenderingContext2D, snake: Snake, target: Target) {
   let node: SnakeLink | null = snake.head;
 
   while (node) {
+    if (target.checkCollision(node.position)) {
+      target.moveTarget();
+      printTarget(ctx, target);
+    }
     ctx.fillRect(
       node.position[0] * linkDimensionsInPx[0],
       node.position[1] * linkDimensionsInPx[1],

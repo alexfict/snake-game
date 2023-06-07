@@ -1,20 +1,26 @@
-import './style.css'
-import { type Coords, Snake, SnakeLink, Direction} from './types'
+import "./style.css";
+import { type Coords, Snake, SnakeLink, Direction } from "./types";
 
-// move to settings
-const linkDimensionsInPx = 5;
+// settable by the client
+const linkDimensionsInPx: Coords = [5, 5];
+const canvasDimensionsInPx: Coords = [100, 100];
 
 function main() {
-  const initSnakeCoords:Coords[] = [[10,2], [11,2], [12,2], [13,2]];
-  const canvas:HTMLCanvasElement|null = document.querySelector("#canvas");
+  const initSnakeCoords: Coords[] = [
+    [10, 2],
+    [11, 2],
+    [12, 2],
+    [13, 2],
+  ];
+  const canvas: HTMLCanvasElement | null = document.querySelector("#canvas");
 
-  if(!canvas){
+  if (!canvas) {
     console.warn("Could not find canvas element with id 'canvas'");
     return;
   }
 
-  canvas.addEventListener("keydown", e => {
-    switch(e.key){
+  canvas.addEventListener("keydown", (e) => {
+    switch (e.key) {
       case "ArrowUp":
         snake.setDirection(Direction.Up);
         break;
@@ -28,37 +34,54 @@ function main() {
         snake.setDirection(Direction.Left);
         break;
     }
-  })
+  });
 
   canvas.focus();
-  
+
   const ctx = canvas.getContext("2d");
 
-  if(!ctx){
+  if (!ctx) {
     console.warn("Could not get canvas rendering context 2D");
     return;
   }
 
-  const snake = new Snake(new SnakeLink(initSnakeCoords[0]));
+  const snake = new Snake(
+    new SnakeLink(initSnakeCoords[0]),
+    canvasDimensionsInPx,
+    linkDimensionsInPx
+  );
   for (const link of initSnakeCoords.slice(1)) {
-      snake.feedBack(new SnakeLink(link));
+    snake.feedBack(new SnakeLink(link));
   }
 
-  const intervalId = setInterval(() => {run(ctx, snake)}, 500);
+  const intervalId = setInterval(() => {
+    run(ctx, snake);
+  }, 250);
 }
 
-function run(ctx:CanvasRenderingContext2D, snake:Snake) {
-    let node:SnakeLink|null = snake.head;
+function run(ctx: CanvasRenderingContext2D, snake: Snake) {
+  let node: SnakeLink | null = snake.head;
 
-    while(node) {
-        ctx.fillRect(node.position[0]*linkDimensionsInPx, node.position[1]*linkDimensionsInPx, linkDimensionsInPx, linkDimensionsInPx);
-        node = node.next;
-    }
+  while (node) {
+    ctx.fillRect(
+      node.position[0] * linkDimensionsInPx[0],
+      node.position[1] * linkDimensionsInPx[1],
+      linkDimensionsInPx[0],
+      linkDimensionsInPx[1]
+    );
+    node = node.next;
+  }
 
-    snake.feedFront();
-    let coords = snake.pop();
-    
-    coords && ctx.clearRect(coords[0]*linkDimensionsInPx, coords[1]*linkDimensionsInPx, linkDimensionsInPx, linkDimensionsInPx);
+  snake.feedFront();
+  let coords = snake.pop();
+
+  coords &&
+    ctx.clearRect(
+      coords[0] * linkDimensionsInPx[0],
+      coords[1] * linkDimensionsInPx[1],
+      linkDimensionsInPx[0],
+      linkDimensionsInPx[1]
+    );
 }
 
 main();

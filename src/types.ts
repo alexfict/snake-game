@@ -15,6 +15,7 @@ export class Snake {
   direction: Direction = Direction.Left;
   maxX: number;
   maxY: number;
+  private coordsToAdd: Coords[] = [];
 
   constructor(
     head: SnakeLink,
@@ -43,23 +44,38 @@ export class Snake {
     }
   }
 
-  pop(): Coords | null {
+  pop() {
     let node = this.head;
     let prevNode: SnakeLink | null = null;
-    let o: Coords | null = null;
     while (node) {
       if (node.next === null) {
-        o = node.position;
+        if (
+          this.coordsToAdd.length > 0 &&
+          node.position[0] === this.coordsToAdd[0][0] &&
+          node.position[1] === this.coordsToAdd[0][1]
+        ) {
+          this.coordsToAdd = this.coordsToAdd.slice(1);
+          break;
+        }
         if (prevNode) prevNode.next = null;
         break;
       }
       prevNode = node;
       node = node.next;
     }
-    return o;
+  }
+
+  growAt(coords: Coords) {
+    this.coordsToAdd.push(coords);
   }
 
   setDirection(direction: Direction) {
+    if (this.direction === Direction.Down && direction === Direction.Up) return;
+    if (this.direction === Direction.Up && direction === Direction.Down) return;
+    if (this.direction === Direction.Left && direction === Direction.Right)
+      return;
+    if (this.direction === Direction.Right && direction === Direction.Left)
+      return;
     this.direction = direction;
   }
 

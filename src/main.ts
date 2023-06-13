@@ -2,8 +2,8 @@ import "./style.css";
 import { type Coords, Snake, SnakeLink, Direction, Target } from "./types";
 
 // settable by the client
-const linkDimensionsInPx: Coords = [5, 5];
-const canvasDimensionsInPx: Coords = [100, 100];
+const linkDimensionsInPx: Coords = [10, 10];
+const canvasDimensionsInPx: Coords = [200, 200];
 
 function main() {
   const initSnakeCoords: Coords[] = [
@@ -76,11 +76,27 @@ function printTarget(ctx: CanvasRenderingContext2D, target: Target) {
 function run(ctx: CanvasRenderingContext2D, snake: Snake, target: Target) {
   let node: SnakeLink | null = snake.head;
 
+  ctx.clearRect(0, 0, canvasDimensionsInPx[0], canvasDimensionsInPx[1]);
+
+  if (target.checkCollision(node.position)) {
+    snake.growAt(target.position);
+    target.moveTarget();
+  }
+
+  printTarget(ctx, target);
+
+  // print head
+  ctx.fillStyle = "green";
+  ctx.fillRect(
+    node.position[0] * linkDimensionsInPx[0],
+    node.position[1] * linkDimensionsInPx[1],
+    linkDimensionsInPx[0],
+    linkDimensionsInPx[1]
+  );
+  ctx.fillStyle = "black";
+  node = node.next;
+
   while (node) {
-    if (target.checkCollision(node.position)) {
-      target.moveTarget();
-      printTarget(ctx, target);
-    }
     ctx.fillRect(
       node.position[0] * linkDimensionsInPx[0],
       node.position[1] * linkDimensionsInPx[1],
@@ -91,15 +107,7 @@ function run(ctx: CanvasRenderingContext2D, snake: Snake, target: Target) {
   }
 
   snake.feedFront();
-  let coords = snake.pop();
-
-  coords &&
-    ctx.clearRect(
-      coords[0] * linkDimensionsInPx[0],
-      coords[1] * linkDimensionsInPx[1],
-      linkDimensionsInPx[0],
-      linkDimensionsInPx[1]
-    );
+  snake.pop();
 }
 
 main();

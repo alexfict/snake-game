@@ -12,9 +12,10 @@ export class SnakeLink {
 
 export class Snake {
   head: SnakeLink;
-  direction: Direction = Direction.Left;
-  maxX: number;
-  maxY: number;
+  private direction: Direction = Direction.Left;
+  private directionLock: boolean = false;
+  private maxX: number;
+  private maxY: number;
   private coordsToAdd: Coords[] = [];
 
   constructor(
@@ -27,10 +28,23 @@ export class Snake {
     this.maxY = canvasDimensions[1] / linkDimensions[1];
   }
 
-  feedFront() {
+  feedFront(): boolean {
     let link = new SnakeLink(this.calculateCoords());
+
+    let node: SnakeLink | null = this.head;
+    while (node) {
+      if (
+        link.position[0] === node.position[0] &&
+        link.position[1] === node.position[1]
+      )
+        return false;
+      node = node.next;
+    }
+
     link.next = this.head;
     this.head = link;
+    this.directionLock = false;
+    return true;
   }
 
   feedBack(link: SnakeLink) {
@@ -70,6 +84,7 @@ export class Snake {
   }
 
   setDirection(direction: Direction) {
+    if (this.directionLock) return;
     if (this.direction === Direction.Down && direction === Direction.Up) return;
     if (this.direction === Direction.Up && direction === Direction.Down) return;
     if (this.direction === Direction.Left && direction === Direction.Right)
@@ -77,6 +92,7 @@ export class Snake {
     if (this.direction === Direction.Right && direction === Direction.Left)
       return;
     this.direction = direction;
+    this.directionLock = true;
   }
 
   private calculateCoords(): Coords {

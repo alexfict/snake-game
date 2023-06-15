@@ -58,7 +58,7 @@ function main() {
   printTarget(ctx, target);
 
   const intervalId = setInterval(() => {
-    run(ctx, snake, target);
+    !run(ctx, snake, target) && clearInterval(intervalId);
   }, 250);
 }
 
@@ -73,7 +73,11 @@ function printTarget(ctx: CanvasRenderingContext2D, target: Target) {
   ctx.fillStyle = "black";
 }
 
-function run(ctx: CanvasRenderingContext2D, snake: Snake, target: Target) {
+function run(
+  ctx: CanvasRenderingContext2D,
+  snake: Snake,
+  target: Target
+): boolean {
   let node: SnakeLink | null = snake.head;
 
   ctx.clearRect(0, 0, canvasDimensionsInPx[0], canvasDimensionsInPx[1]);
@@ -106,8 +110,8 @@ function run(ctx: CanvasRenderingContext2D, snake: Snake, target: Target) {
     node = node.next;
   }
 
-  snake.feedFront();
   snake.pop();
+  return snake.feedFront();
 }
 
 main();

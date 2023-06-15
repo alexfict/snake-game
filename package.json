@@ -1,8 +1,16 @@
 {
   "name": "snake-game",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/sanke-game.umd.cjs",
+  "module": "./dist/snake-game.js",
+  "exports": {
+    ".": {
+      "import": "./dist/snake-game.js",
+      "require": "./dist/snake-game.umd.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

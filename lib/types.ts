@@ -47,17 +47,6 @@ export class Snake {
     return true;
   }
 
-  feedBack(link: SnakeLink) {
-    let node = this.head;
-    while (node) {
-      if (node.next === null) {
-        node.next = link;
-        break;
-      }
-      node = node.next;
-    }
-  }
-
   pop() {
     let node = this.head;
     let prevNode: SnakeLink | null = null;

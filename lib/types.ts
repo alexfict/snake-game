@@ -154,3 +154,133 @@ export class Target {
     ];
   }
 }
+
+export class GameControl {
+  ctx: CanvasRenderingContext2D;
+  snake: Snake;
+  linkDimensionsInPx: Coords;
+  canvasDimensionsInPx: Coords;
+  pauseOverlay: HTMLDivElement;
+  playOverlay: HTMLDivElement;
+  intervalId: number | undefined;
+  state: "running" | "paused" = "paused";
+  canvas: HTMLCanvasElement;
+  target: Target;
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+    snake: Snake,
+    linkDimensionsInPx: Coords,
+    canvasDimensionsInPx: Coords
+  ) {
+    this.ctx = ctx;
+    this.snake = snake;
+    this.linkDimensionsInPx = linkDimensionsInPx;
+    this.canvasDimensionsInPx = canvasDimensionsInPx;
+    this.canvas = canvas;
+
+    this.target = new Target(canvasDimensionsInPx, linkDimensionsInPx);
+
+    const { width, height, left, top } = canvas.getClientRects()[0];
+    this.pauseOverlay = document.createElement("div");
+    this.pauseOverlay.style.width = `${width}px`;
+    this.pauseOverlay.style.height = `${height}px`;
+    this.pauseOverlay.style.position = "fixed";
+    this.pauseOverlay.style.top = `${top}px`;
+    this.pauseOverlay.style.left = `${left}px`;
+    this.pauseOverlay.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+    this.pauseOverlay.style.display = "none";
+
+    this.playOverlay = document.createElement("div");
+    this.playOverlay.style.width = `${width}px`;
+    this.playOverlay.style.height = `${height}px`;
+    this.playOverlay.style.position = "fixed";
+    this.playOverlay.style.top = `${top}px`;
+    this.playOverlay.style.left = `${left}px`;
+    this.playOverlay.style.backgroundColor = "rgba(0, 255, 0, 0.5)";
+
+    document.querySelector("body")?.appendChild(this.pauseOverlay);
+    document.querySelector("body")?.appendChild(this.playOverlay);
+
+    this.canvas.addEventListener("blur", () => this.pause());
+
+    this.playOverlay.addEventListener("click", () => this.play());
+    this.pauseOverlay.addEventListener("click", () => this.play());
+  }
+
+  play() {
+    if (this.state === "running") return;
+    this.playOverlay.style.display = "none";
+    this.pauseOverlay.style.display = "none";
+    this.intervalId = setInterval(() => {
+      !this.run() && clearInterval(this.intervalId);
+    }, 250);
+    this.canvas.focus();
+    this.state = "running";
+  }
+
+  pause() {
+    if (this.state === "paused") return;
+    this.pauseOverlay.style.display = "block";
+    clearInterval(this.intervalId);
+    this.state = "paused";
+  }
+
+  private run(): boolean {
+    let node: SnakeLink | null = this.snake.head;
+
+    this.ctx.clearRect(
+      0,
+      0,
+      this.canvasDimensionsInPx[0],
+      this.canvasDimensionsInPx[1]
+    );
+
+    if (this.target.checkCollision(node.position)) {
+      this.snake.growAt(this.target.position);
+      this.target.moveTarget();
+    }
+
+    this.printTarget(this.ctx, this.target, this.linkDimensionsInPx);
+
+    // print head
+    this.ctx.fillStyle = "green";
+    this.ctx.fillRect(
+      node.position[0] * this.linkDimensionsInPx[0],
+      node.position[1] * this.linkDimensionsInPx[1],
+      this.linkDimensionsInPx[0],
+      this.linkDimensionsInPx[1]
+    );
+    this.ctx.fillStyle = "black";
+    node = node.next;
+
+    while (node) {
+      this.ctx.fillRect(
+        node.position[0] * this.linkDimensionsInPx[0],
+        node.position[1] * this.linkDimensionsInPx[1],
+        this.linkDimensionsInPx[0],
+        this.linkDimensionsInPx[1]
+      );
+      node = node.next;
+    }
+
+    this.snake.pop();
+    return this.snake.feedFront();
+  }
+
+  private printTarget(
+    ctx: CanvasRenderingContext2D,
+    target: Target,
+    linkDimensionsInPx: Coords
+  ) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+      target.position[0] * linkDimensionsInPx[0],
+      target.position[1] * linkDimensionsInPx[1],
+      linkDimensionsInPx[0],
+      linkDimensionsInPx[1]
+    );
+    ctx.fillStyle = "black";
+  }
+}
